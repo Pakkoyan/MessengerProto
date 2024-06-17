@@ -2,27 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-
+use App\Http\Requests\AuthRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController
 {
     // Метод для регистрации
-    public function register(Request $request)
+    public function register(AuthRequest $request)
     {
-        // Валидация данных
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:50|unique:users',
-            'password' => 'required|string|min:6',
-            'email' => 'nullable|string|email|max:100|unique:users',
+        $user = User::create([
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'email' => $request->email,
         ]);
 
-        // В случае проавала валидации возвращаем Bad Request
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-
+        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
 }
